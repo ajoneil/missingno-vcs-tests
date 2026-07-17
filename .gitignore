@@ -1,0 +1,4 @@
+# build artifacts
+roms/**/*.a26
+roms/**/*.lst
+roms/**/*.sym
