@@ -1,20 +1,27 @@
-; dpc-flag-edges — three contested edges of the DPC fetcher's one-bit flag.
+; dpc-flag-edges — contested edges of the DPC fetcher's one-bit flag.
 ;
 ; The DPC ("Display Processor Chip", Pitfall II) gives each display fetcher a
 ; one-bit flag. Two 8-bit comparators watch the fetcher's counter-low value: the
 ; flag sets when counter-low == Top and resets when counter-low == Bottom (US
 ; Patent 4,644,495). That set/reset rule is settled; dpc-flag exercises it.
 ;
-; This ROM probes three edges the patent leaves terse and Pitfall II never
-; exercises — untested on hardware. Each cell asserts one documented reading.
-; All flag reads use DF5 ($F03D): flag reads on the low fetchers DF0-DF4 are
-; unreliable on some implementations, which DF5 avoids.
+; This ROM probes the edges the patent leaves terse. Cells $02-$04 assert
+; documented readings that are untested on hardware; cell $05 is settled by a
+; shipping cartridge — Pitfall II exercises it every frame and a real console
+; draws the sprite (see the cell). All flag reads use DF5 ($F03D): flag reads
+; on the low fetchers DF0-DF4 are unreliable on some implementations, which
+; DF5 avoids.
 ;
-; The three contested edges:
+; The contested edges:
 ;
 ;   Write-to-Top polarity. The patent says a write to Top (a "Tx signal") also
-;   resets the flag; other documentation says the write sets it. Cell $02 asserts
-;   the patent's reset.
+;   resets the flag; other documentation says the write sets it. Cell $02
+;   asserts the patent's reset — for a Top unequal to counter-low. Cell $05
+;   asserts the equal case: the first read after such a write, with the
+;   counter still on Top, sees the flag set — true whether the level was
+;   latched at the write or derived at the read, which is all the hardware
+;   evidence pins down. Only the pair discriminates — an always-sets model
+;   passes $05 alone and is caught by $02.
 ;
 ;   Top == Bottom == counter-low. Both comparators fire on the same value; the
 ;   patent does not say which wins. Some implementations are set-wins ($FF),
@@ -29,10 +36,12 @@
 ;
 ;   CODE $01 = baseline set/reset broken (read-walk: set at low==Top, reset at
 ;              low==Bottom on DF5 — a compact repeat of dpc-flag)
-;        $02 = write-to-Top did not reset the flag (patent: $00)
+;        $02 = write-to-Top (unequal) did not reset the flag (patent: $00)
 ;        $03 = Top==Bottom==low did not resolve set-wins ($FF)
 ;        $04 = comparator timing: counter-low==Top then a between-value left the
 ;              flag clear instead of latched set ($FF)
+;        $05 = a write to Top equal to counter-low did not read back set on the
+;              next read ($FF) — the Pitfall II sprite-blanking bug
 ;
 ; Self-test: verdict in RESULT ($80); region-independent.
 ; mapper: DPC
@@ -117,15 +126,42 @@ Main:
         ASSERT_EQ V1, $FF, $02  ; the flag really was set first
         ASSERT_EQ V2, $00, $02  ; ...and the Top write cleared it
 
+        ; --- cell 05: a write to Top that equals counter-low reads back set
+        ; The other half of cell $02's question, and the one edge here settled
+        ; by hardware: Pitfall II writes counter-low first and Top last, so
+        ; when the two bytes coincide (the bat/condor at the top of their arc)
+        ; this write is the last flag event before the display reads — and a
+        ; real console draws the sprite. A model whose next read still reports
+        ; clear blanks it for a full animation cell.
+        ; The read lands while counter-low still equals Top: that much the
+        ; shipping cart settles, whether the level was latched at the write or
+        ; derived at the read (cell $04's question, not this one's).
+        ; An always-sets model also reads $FF here; cell $02 catches it — the
+        ; $02/$05 pair discriminates, keep both.
+        lda #$00
+        sta CHIGH+5
+        lda #$20
+        sta BOTTOM+5        ; Bottom = $20
+        lda #$40
+        sta CLOW+5          ; counter-low = $40
+        lda #$60
+        sta TOP+5           ; Top = $60 != low: Tx resets -> flag clear
+        lda #$40
+        sta TOP+5           ; Top = $40 == low: the satisfied comparator wins
+        lda FLAG+5          ; read with counter still == Top -> $FF
+        sta V1              ;   (write-time unconditional clear -> $00), ptr -> $3F
+        ASSERT_EQ V1, $FF, $05
+
         ; --- cell 04 (patent): comparator timing, write-time evaluation
         ; Flag clear; write counter-low == Top (no read), then write counter-low
         ; to a between-value; then flag-read. Continuous comparators latched the
         ; Top equality at write time -> $FF. A model that evaluates on writes
         ; agrees; one that defers to reads sees only the between-value -> $00.
         ; A self-test stops at its first failing cell, so no ordering can show
-        ; every contested cell on every model. This cell has patent authority, so
-        ; it runs before the patent-silent tie in cell 03; the codes keep their
-        ; labels, making the execution order $01, $02, $04, $03.
+        ; every contested cell on every model. Cells run strongest authority
+        ; first: hardware-settled $05 right after its complement $02, then this
+        ; patent cell, then the patent-silent tie in cell 03. The codes keep
+        ; their labels, making the execution order $01, $02, $05, $04, $03.
         lda #$00
         sta CHIGH+5
         lda #$20
