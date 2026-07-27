@@ -1,6 +1,6 @@
 # missingno-vcs-tests
 
-A hardware-accuracy test suite for the Atari 2600 (VCS): 116 tests covering
+A hardware-accuracy test suite for the Atari 2600 (VCS): 117 tests covering
 the TIA (rendering, cycle-exact timing, collisions), the RIOT (timer, RAM,
 I/O ports), cartridge bankswitching, and NTSC/PAL/SECAM regional behaviour.
 One behaviour per test, specified in the test's header. Developed alongside
