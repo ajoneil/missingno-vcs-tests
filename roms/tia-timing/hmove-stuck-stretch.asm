@@ -16,8 +16,10 @@
 ; lands one column right of a multiple of 4, a single residue of the 4-clock
 ; pulse grid (see hmove-stuck-grid): the first lit cell narrows to 1 px and the
 ; last widens to 3 px, growing one pixel leftward. The other three row types
-; slide intact, and quadrupled every row slides intact (hardware-measured: real
-; PAL console, 2026-07-16). The top visible row is the quad half's frozen
+; slide intact (hardware-measured: real PAL console, 2026-07-16). Quadrupled,
+; rows slide whole at the resolution of that capture; their per-cell delivery
+; structure follows the console-measured merge rule (merge-delivery-stretch
+; and merge-delivery-train). The top visible row is the quad half's frozen
 ; release anchor left over from the previous frame. An implementation that
 ; moves the drifting player whole at both sizes draws the 23 deformed rows
 ; intact.
