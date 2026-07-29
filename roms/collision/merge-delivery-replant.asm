@@ -46,7 +46,8 @@ EXPECTED_P2 = $E0               ; legs 9-12 clear + shifted flag + probes
         MAC LEG                 ; {1} trim {2} reset SLEEP {3} M1 walk
                                 ; {4} BL walk {5} M1 cell {6} BL cell
                                 ; {7} P1 walk {8} P1 cell
-        ; park the quad player: write ends clock 141 -> column 79
+        ; park the quad player: write ends clock 141 -> column 79 (wide
+        ; players land one clock later than single width's 78)
         sta WSYNC
         SLEEP 44
         sta RESP0
@@ -64,7 +65,9 @@ EXPECTED_P2 = $E0               ; legs 9-12 clear + shifted flag + probes
         sta RESBL
         lda #{4}
         sta HMBL
-        ; park the body probe (write ends clock 69 -> column 7) and arm
+        ; park the body probe (write ends clock 69 -> column 7: a
+        ; blank-edge player reset lands one clock later than mid-scan's
+        ; "5 clocks after the strobe"; measured) and arm
         sta WSYNC
         SLEEP 20
         sta RESP1

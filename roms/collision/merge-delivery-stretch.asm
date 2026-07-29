@@ -65,7 +65,8 @@ B_EXPECTED = $3B
 ; (leg 6), {7}/{8} the leg's ARES/BRES cells.
 ;
 ; Geometry (colour clocks, WSYNC-anchored): the player parks at base
-; column 79 (RESP0 write ending clock 141), walked per leg by the one
+; column 79 (RESP0 write ending clock 141 — a double-width player lands
+; one clock later than single width's 78), walked per leg by the one
 ; HMOVE nudge line; its scan starts at clock (park column + 64). The
 ; measured line's HMOVE write ends clock 138 and its first stuff pulse
 ; lands at clock 145; leg 6 arms two pulses and uses the second, at 149,

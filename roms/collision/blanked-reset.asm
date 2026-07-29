@@ -8,7 +8,11 @@
 ; register — a counter free-runs across the line, and writing RESM0 or RESBL
 ; restarts it wherever the beam is. The object's first pixel then obeys one
 ; rule everywhere: it appears at the later of "4 clocks after the strobe"
-; and "2 clocks after blanking ends" (a player: 5 and 3).
+; and "2 clocks after blanking ends". (Players are not exercised here: a
+; single-width player mid-scan lands 5 clocks after the strobe, but one
+; clock later at double or quad width — and, measured in
+; merge-delivery-replant, when the strobe abuts the blank edge: write
+; end 69 -> column 7, not the 6 a five-and-three arm pair predicts.)
 ;
 ; The CPU can only write on every third clock, and against 68-clock blanking
 ; that grid always misses the lone clock where those two arms differ by a
