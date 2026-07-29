@@ -101,9 +101,15 @@ quirk, will diverge during init and shift whole frames. If the first frames look
 scrambled or shifted, check the mirror decode and RSYNC before suspecting the
 kernel.
 
+## Thanks
+
+To [James Villarreal (ArkoSammy12)](https://github.com/ArkoSammy12) and
+[Dennis Munsie (munsie)](https://github.com/munsie) for testing the suite
+and for their feedback.
+
 ## Development
 
-Claude (Fable 5, Opus 4.8) was used extensively in the development of this
+Claude (Fable 5, Opus 4.8-5) was used extensively in the development of this
 suite.
 
 ## License
